@@ -275,10 +275,44 @@ declare module "textbox" {
      * textbox.show();
      */
     function setConfig(focus: "start" | "end", font: "text" | "hex"): void;
+
+    /**
+     * Add text to the end of the textbox
+     * @param text The text to add to the end of the textbox
+     * @example
+     * textbox.addText("New text 1\nNew text 2");
+     */
     function addText(text: string): void;
+
+    /**
+     * Clear the textbox
+     * @example
+     * textbox.clearText();
+     */
     function clearText(): void;
+
+    /**
+     * Return true if the textbox is open
+     * @returns True if the textbox is open, false otherwise
+     * @example
+     * let isOpen = textbox.isOpen();
+     */
     function isOpen(): boolean;
+
+    /**
+     * Show the textbox. You can add text to it using the addText() method before or after calling the show() method
+     * @example
+     * textbox.show();
+     */
     function show(): void;
+
+    /**
+     * Close the textbox
+     * @example
+     * if (textbox.isOpen()) {
+     *     textbox.close();
+     * }
+     */
     function close(): void;
 }
 
