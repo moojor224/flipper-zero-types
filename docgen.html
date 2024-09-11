@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div><input id="desc" />description</div>
+    <div><input id="param" />param</div>
+    <div><input id="return" />returns</div>
+    <div><textarea id="example"></textarea>example</div>
+    <pre id="output"></pre>
+    <script>
+        document.body.addEventListener("input", function () {
+            let desc = document.getElementById("desc").value;
+            let param = document.getElementById("param").value;
+            let ret = document.getElementById("return").value;
+            let ex = document.getElementById("example").value;
+            let output = document.getElementById("output");
+            output.innerHTML = `/**
+     * ${desc}
+     * @param x ${param}
+     * @returns ${ret}
+     * @example
+     * ${ex.split("\n").join("\n     * ")}
+     */`;
+        });
+    </script>
+</body>
+
+</html>

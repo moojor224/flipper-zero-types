@@ -140,29 +140,226 @@ declare module "math" {
      */
     function abs(x: number): number;
 
+    /**
+     * Return the inverse cosine (in radians) of a number
+     * @param x A number between -1 and 1, inclusive, representing the angle's cosine value
+     * @returns The inverse cosine (angle in radians between 0 and π, inclusive) of x. If x is less than -1 or greater than 1, returns NaN
+     * @example
+     * math.acos(-1); // 3.141592653589793
+     */
     function acos(x: number): number;
-    function acosh(x: number): number;
-    function asin(x: number): number;
-    function asinh(x: number): number;
-    function atan(x: number): number;
-    function atan2(y: number, x: number): number;
-    function atanh(x: number): number;
-    function cbrt(x: number): number;
-    function ceil(x: number): number;
-    function clz32(x: number): number;
-    function cos(x: number): number;
-    function exp(x: number): number;
-    function floor(x: number): number;
-    function is_equal(a: number, b: number, e: number): boolean;
-    function max(a: number, b: number): number;
-    function min(a: number, b: number): number;
-    function pow(base: number, exponent: number): number;
-    function random(): number;
-    function sign(x: number): number;
-    function sin(x: number): number;
-    function sqrt(x: number): number;
-    function trunc(x: number): number;
 
+    /**
+     * Return the inverse hyperbolic cosine of a number
+     * @param x A number greater than or equal to 1
+     * @returns The inverse hyperbolic cosine of x
+     * @example
+     * math.acosh(1); // 0
+     */
+    function acosh(x: number): number;
+
+    /**
+     * Return the inverse sine (in radians) of a number
+     * @param x A number between -1 and 1, inclusive, representing the angle's sine value
+     * @returns The inverse sine (angle in radians between -𝜋/2 and 𝜋/2, inclusive) of x
+     * @example
+     * math.asin(0.5); // 0.5235987755982989
+     */
+    function asin(x: number): number;
+
+    /**
+     * Return the inverse hyperbolic sine of a number
+     * @param x A number
+     * @returns The inverse hyperbolic sine of x
+     * @example
+     * math.asinh(1); // 0.881373587019543
+     */
+    function asinh(x: number): number;
+
+    /**
+     * Return the inverse tangent (in radians) of a number
+     * @param x A number
+     * @returns The inverse tangent (angle in radians between -𝜋/2 and 𝜋/2, inclusive) of x
+     * @example
+     * math.atan(1); // 0.7853981633974483
+     */
+    function atan(x: number): number;
+
+    /**
+     * Return the angle in the plane (in radians) between the positive x-axis and the ray from (0, 0) to the point (x, y), for math.atan2(y, x)
+     * @param y The y coordinate of the point
+     * @param x The x coordinate of the point
+     * @returns The angle in radians (between -π and π, inclusive) between the positive x-axis and the ray from (0, 0) to the point (x, y)
+     * @example
+     * math.atan2(90, 15); // 1.4056476493802699
+     */
+    function atan2(y: number, x: number): number;
+
+    /**
+     * The method returns the inverse hyperbolic tangent of a number
+     * @param x A number between -1 and 1, inclusive
+     * @returns The inverse hyperbolic tangent of x
+     * @example
+     * math.atanh(0.5); // 0.5493061443340548
+     */
+    function atanh(x: number): number;
+
+    /**
+     * Return the cube root of a number
+     * @param x A number
+     * @returns The cube root of x
+     * @example
+     * math.cbrt(2); // 1.2599210498948732
+     */
+    function cbrt(x: number): number;
+
+    /**
+     * Round up and return the smallest integer greater than or equal to a given number
+     * @param x A number
+     * @returns The smallest integer greater than or equal to x. It's the same value as -math.floor(-x)
+     * @example
+     * math.ceil(-7.004); // -7
+     * math.ceil(7.004);  // 8
+     */
+    function ceil(x: number): number;
+
+    /**
+     * Return the number of leading zero bits in the 32-bit binary representation of a number
+     * @param x A number
+     * @returns The number of leading zero bits in the 32-bit binary representation of x
+     * @example
+     * math.clz32(1);    // 31
+     * math.clz32(1000); // 22
+     */
+    function clz32(x: number): number;
+
+    /**
+     * Return the cosine of a number in radians
+     * @param x A number representing an angle in radians
+     * @returns The cosine of x, between -1 and 1, inclusive
+     * @example
+     * math.cos(math.PI); // -1
+     */
+    function cos(x: number): number;
+
+    /**
+     * Return e raised to the power of a number
+     * @param x A number
+     * @returns A nonnegative number representing e^x, where e is the base of the natural logarithm
+     * @example
+     * math.exp(0); // 1
+     * math.exp(1); // 2.718281828459045
+     */
+    function exp(x: number): number;
+
+    /**
+     * Round down and return the largest integer less than or equal to a given number
+     * @param x A number
+     * @returns The largest integer smaller than or equal to x. It's the same value as -math.ceil(-x)
+     * @example
+     * math.floor(-45.95); // -46
+     * math.floor(-45.05); // -46
+     * math.floor(-0); // -0
+     * math.floor(0); // 0
+     * math.floor(45.05); // 45
+     * math.floor(45.95); // 45
+     */
+    function floor(x: number): number;
+
+    /**
+     * Return true if the difference between numbers a and b is less than the specified parameter e
+     * @param a A number a
+     * @param b A number b
+     * @param e An epsilon parameter
+     * @returns True if the difference between numbers a and b is less than the specified parameter e. Otherwise, false
+     * @example
+    * math.is_equal(1.4, 1.6, 0.2);      // false
+    * math.is_equal(3.556, 3.555, 0.01); // true
+    */
+    function is_equal(a: number, b: number, e: number): boolean;
+
+    /**
+     * Return the largest of two numbers given as input parameters
+     * @param a A number a
+     * @param b A number b
+     * @returns The largest of the given numbers
+     * @example
+     * math.max(10, 20);   // 20
+     * math.max(-10, -20); // -10
+     */
+    function max(a: number, b: number): number;
+
+    /**
+     * Return the smallest of two numbers given as input parameters
+     * @param a A number a
+     * @param b A number b
+     * @returns The smallets of the given numbers
+     * @example
+     * math.max(10, 20);   // 10
+     * math.max(-10, -20); // -20
+     */
+    function min(a: number, b: number): number;
+
+    /**
+     * Return the value of a base raised to a power
+     * @param base The base number
+     * @param exponent The exponent number
+     * @returns A number representing base taken to the power of exponent
+     * @example
+     * math.pow(7, 2);  // 49
+     * math.pow(7, 3);  // 343
+     * math.pow(2, 10); // 1024
+     */
+    function pow(base: number, exponent: number): number;
+
+    /**
+     * Return a floating-point, pseudo-random number that's greater than or equal to 0 and less than 1, with approximately uniform distribution over that range - which you can then scale to your desired range
+     * @returns A floating-point, pseudo-random number between 0 (inclusive) and 1 (exclusive)
+     * @example
+     * let num = math.random();
+     */
+    function random(): number;
+
+    /**
+     * Return 1 or -1, indicating the sign of the number passed as argument
+     * @param x A number
+     * @returns -1 if the number is less than 0, and 1 otherwise
+     * @example
+     * math.sign(3);  // 1
+     * math.sign(0);  // 1
+     * math.sign(-3); // -1
+     */
+    function sign(x: number): number;
+
+    /**
+     * Return the sine of a number in radians
+     * @param x A number representing an angle in radians
+     * @returns The sine of x, between -1 and 1, inclusive
+     * @example
+     * math.sin(math.PI / 2); // 1
+     */
+    function sin(x: number): number;
+
+    /**
+     * Return the square root of a number
+     * @param x A number greater than or equal to 0
+     * @returns The square root of x, a nonnegative number. If x < 0, script will fail with an error
+     * @example
+     * math.sqrt(25); // 5
+     */
+    function sqrt(x: number): number;
+
+    /**
+     * Return the integer part of a number by removing any fractional digits
+     * @param x A number
+     * @returns The integer part of x
+     * @example
+     * math.trunc(-1.123); // -1
+     * math.trunc(0.123);  // 0
+     * math.trunc(13.37);  // 13
+     * math.trunc(42.84);  // 42
+     */
+    function trunc(x: number): number;
 }
 
 declare module "serial" {

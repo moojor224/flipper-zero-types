@@ -1,5 +1,5 @@
 {
-    "name": "@moojor224/flipper-types",
+    "name": "@moojor224/flipper-zero-types",
     "version": "1.0.1",
     "license": "ISC",
     "description": "TypeScript definitions for Flipper Zero js scripts",
@@ -8,10 +8,10 @@
     "types": "index.d.ts",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/moojor224/flipper-types.git"
+        "url": "git+https://github.com/moojor224/flipper-zero-types.git"
     },
     "bugs": {
-        "url": "https://github.com/moojor224/flipper-types/issues"
+        "url": "https://github.com/moojor224/flipper-zero-types/issues"
     },
-    "homepage": "https://github.com/moojor224/flipper-types"
+    "homepage": "https://github.com/moojor224/flipper-zero-types"
 }
