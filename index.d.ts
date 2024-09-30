@@ -127,6 +127,12 @@ declare module "dialog" {
     function custom(config: DialogConfig): string;
 }
 
+declare module "flipper" {
+    function getBatteryCharge(): number;
+    function getName(): string;
+    function getModel(): string;
+}
+
 declare module "math" {
     const PI: 3.14159265358979323846264338327950288;
     const E: 2.71828182845904523536028747135266250;
@@ -516,6 +522,7 @@ declare module "textbox" {
 interface modules {
     "badusb": typeof import("badusb");
     "dialog": typeof import("dialog");
+    "flipper": typeof import("flipper");
     "math": typeof import("math");
     "serial": typeof import("serial");
     "notification": typeof import("notification");
