@@ -1,3 +1,6 @@
+type Narrow<T> = | (T extends infer U ? U : never) | Extract<T, any> | ([T] extends [[]] ? [] : { [K in keyof T]: Narrow<T[K]> });
+type Contract = {}
+
 declare module "badusb" {
     type USBConfiguration = {
         /** Vendor ID (mandatory) */
@@ -86,45 +89,47 @@ declare module "badusb" {
     function println(message: string, delay?: number): void;
 }
 
-declare module "dialog" {
-    /**
-     * Show a simple message dialog with header, text and "OK" button.
-     * @param header Dialog header text
-     * @param text Dialog text
-     * @returns true if central button was pressed, false if the dialog was closed by back key press
-     * @example
-     * dialog.message("Dialog demo", "Press OK to start");
-     */
-    function message(header: string, text: string): boolean;
-    type DialogConfig = {
-        /** Dialog header text */
-        header: string,
-        /** Dialog text */
-        text: string,
-        /** left button name (optional) */
-        button_left?: string,
-        /** right button name (optional) */
-        button_right?: string,
-        /** central button name (optional) */
-        button_center?: string
+declare module "event_loop" {
+    type SubscriptionManager = {
+        /** Cancels the subscription. */
+        cancel(): void;
+    };
+    type Queue = {
+        /**
+         * @param message a value of any type that will be placed at the end of the queue
+         */
+        send(message: any): void;
+        /** A Contract (event source) that pops items from the front of the queue */
+        input: Contract;
     }
-
+    /** Runs the event loop until it is stopped with stop. */
+    function run(): void;
     /**
-     * More complex dialog with configurable buttons
-     * @param config Dialog configuration object
-     * @returns Name of pressed button or empty string if the dialog was closed by back key press
-     * @example
-     * let dialog_params = ({
-     *     header: "Dialog header",
-     *     text: "Dialog text",
-     *     button_left: "Left",
-     *     button_right: "Right",
-     *     button_center: "OK"
-     * });
+     * Subscribes a function to an event.
      * 
-     * dialog.custom(dialog_params);
+     * ### Warning
+     * 
+     * Each event source may only have one callback associated with it.
      */
-    function custom(config: DialogConfig): string;
+    function subscribe<T extends any[]>(contract: Contract,
+        /**
+         * @param _subscription The subscription manager returned from the call to subscribe()
+         * @param _item The event item for events that produce extra data; the ones that don't set this to undefined
+         * @returns An array of the same length as the count of the extra arguments to modify them for the next time that the event handler is called
+         */
+        callback: (_subscription: SubscriptionManager, _item: any, ...args: T) => T | undefined, ...args: Narrow<T>): SubscriptionManager;
+    /** Stops the event loop. */
+    function stop(): void;
+    /**
+     * Produces an event source that fires with a constant interval either once or indefinitely
+     * @param interval The timeout for "oneshot" timers or the period for "periodic" timers
+     */
+    function timer(mode: "oneshot" | "periodic", interval: number): Contract;
+    /** 
+     * Produces a queue that can be used to exchange messages.
+     * @param length The maximum number of items that the queue may contain
+     */
+    function queue(length: number): Queue;
 }
 
 declare module "flipper" {
@@ -132,6 +137,126 @@ declare module "flipper" {
     function getName(): string;
     function getModel(): string;
 }
+
+declare module "gpio" {
+    type Mode = {
+        pull?: "up" | "down";
+    }
+    type ModeOut = {
+        direction: "out";
+        outMode: "open_drain" | "push_pull";
+    } & Mode;
+    type ModeInBase = {
+        direction: "in";
+        inMode: "analog" | "plain_digital" | "event";
+    } & Mode;
+    type ModeInEdge = {
+        direction: "in";
+        inMode: "interrupt";
+        edge: "rising" | "falling" | "both";
+    } & Mode;
+    type Pin = {
+        /** Configures a pin */
+        init(mode: ModeOut | ModeInBase | ModeInEdge): void;
+        /**
+         * Writes a digital value to a pin configured with direction: "out"
+         * @param value value: boolean logic level to write
+         */
+        write(value: boolean): void;
+        /** Reads a digital value from a pin configured with direction: "in" and any inMode except "analog" */
+        read(): boolean;
+        /**
+         * Reads an analog voltage level in millivolts from a pin configured with direction: "in" and inMode: "analog"
+         * @returns Voltage on pin in millivolts
+         */
+        read_analog(): number;
+        /**
+         * Attaches an interrupt to a pin configured with direction: "in" and inMode: "interrupt" or "event"
+         * @returns An event loop Contract object that identifies the interrupt event source. The event does not produce any extra data.
+         */
+        interrupt(): Contract;
+    };
+    /**
+     * Gets a Pin object that can be used to manage a pin.
+     * @param pin pin identifier (examples: "pc3", 7, "pa6", 3)
+     */
+    function get(pin: number | string): Pin;
+}
+
+type View<T> = {} & T;
+type ViewDispatcher = {
+    /**
+     * Switches to a view, giving it control over the display and input
+     * @param view the View to switch to
+     */
+    switchTo(view: View<any>): void;
+    /** Sends the viewport that the dispatcher manages to the front of the stackup (effectively making it visible), or to the back (effectively making it invisible) */
+    sendTo(direction: "front" | "back"): void;
+    /** Sends a custom number to the custom event handler */
+    sendCustom(event: number): void;
+    /** An event loop Contract object that identifies the custom event source, triggered by ViewDispatcher.sendCustom(event) */
+    custom: Contract;
+    /** An event loop Contract object that identifies the navigation event source, triggered when the back key is pressed */
+    navigation: Contract;
+};
+type ViewFactory<T, E> = {
+    // not sure how to implement E yet
+    /** Creates an instance of a View */
+    make(): View<E>;
+    /** Creates an instance of a View and assigns initial properties from props */
+    make(props: T): View<E>;
+}
+
+declare module "gui" {
+    /** The viewDispatcher constant holds the ViewDispatcher singleton */
+    const viewDispatcher: ViewDispatcher;
+}
+
+type gui_dialog = ViewFactory<{
+    /** Text that appears in bold at the top of the screen */
+    header: string;
+    /** Text that appears in the middle of the screen */
+    text: string;
+    /** Text for the left button. If unset, the left button does not show up. */
+    left: string;
+    /** Text for the center button. If unset, the center button does not show up. */
+    center: string;
+    /** Text for the right button. If unset, the right button does not show up. */
+    right: string;
+    /** Fires when the user presses on either of the three possible buttons. The item contains one of the strings "left", "center" or "right" depending on the button. */
+    // input: "left" | "center" | "right";
+}, {
+    /** Fires when the user presses on either of the three possible buttons. The item contains one of the strings "left", "center" or "right" depending on the button. */
+    input: "left" | "center" | "right";
+}>;
+type gui_empty_screen = ViewFactory<{}, {}>;
+type gui_loading = ViewFactory<{}, {}>;
+type gui_submenu = ViewFactory<{
+    /** Single line of text that appears above the list */
+    header: string;
+    /** The list of options */
+    items: string[];
+    /** Fires when an entry has been chosen by the user. The item contains the index of the entry. */
+    // chosen: number;
+}, {
+    /** Fires when an entry has been chosen by the user. The item contains the index of the entry. */
+    chosen: number;
+}>;
+type gui_text_box = ViewFactory<{
+    /** Text to show in the text box. */
+    text: string;
+}, {}>;
+type gui_text_input = ViewFactory<{
+    /** Smallest allowed text length */
+    minLength: number;
+    /** Biggest allowed text length */
+    maxLength: number;
+    /** Single line of text that appears above the keyboard */
+    header: string;
+}, {
+    /** Fires when the user selects the "save" button and the text matches the length constrained by `minLength` and `maxLength`. */
+    input: string;
+}>;
 
 declare module "math" {
     const PI: 3.14159265358979323846264338327950288;
@@ -446,88 +571,54 @@ declare module "notification" {
     function blink(color: "blue" | "red" | "green" | "yellow" | "cyan" | "magenta", type: "short" | "long"): void;
 }
 
-declare module "submenu" {
-    /**
-     * Set the submenu header text
-     * @param header The submenu header text
-     */
-    function setHeader(header: string): void;
-
-    /**
-     * Add a new submenu item
-     * @param label The submenu item label text
-     * @param id The submenu item ID, must be a Uint32 number
-     */
-    function addItem(label: string, id: number): void;
-
-    /**
-     * Show a submenu that was previously configured using the {@link setHeader()|`setHeader()`} and {@link addItem()|`addItem()`} methods
-     * @returns The ID of the submenu item that was selected, or undefined if the BACK button was pressed
-     */
-    function show(): number | undefined;
-}
-
-declare module "textbox" {
-    /**
-     * Set focus and font for the textbox
-     * @param focus "start" to focus on the beginning of the text, or "end" to focus on the end of the text
-     * @param font "text" to use the default proportional font, or "hex" to use a monospaced font, which is convenient for aligned array output in HEX
-     * @example
-     * textbox.setConfig("start", "text");
-     * textbox.addText("Hello world");
-     * textbox.show();
-     */
-    function setConfig(focus: "start" | "end", font: "text" | "hex"): void;
-
-    /**
-     * Add text to the end of the textbox
-     * @param text The text to add to the end of the textbox
-     * @example
-     * textbox.addText("New text 1\nNew text 2");
-     */
-    function addText(text: string): void;
-
-    /**
-     * Clear the textbox
-     * @example
-     * textbox.clearText();
-     */
-    function clearText(): void;
-
-    /**
-     * Return true if the textbox is open
-     * @returns True if the textbox is open, false otherwise
-     * @example
-     * let isOpen = textbox.isOpen();
-     */
-    function isOpen(): boolean;
-
-    /**
-     * Show the textbox. You can add text to it using the addText() method before or after calling the show() method
-     * @example
-     * textbox.show();
-     */
-    function show(): void;
-
-    /**
-     * Close the textbox
-     * @example
-     * if (textbox.isOpen()) {
-     *     textbox.close();
-     * }
-     */
-    function close(): void;
-}
 
 interface modules {
     "badusb": typeof import("badusb");
-    "dialog": typeof import("dialog");
+    "event_loop": typeof import("event_loop");
     "flipper": typeof import("flipper");
+    /** This module depends on the `event_loop` module, so it _must_ only be imported after `event_loop` is imported */
+    "gpio": typeof import("gpio");
+    /** This module depends on the `event_loop` module, so it _must_ only be imported after `event_loop` is imported. */
+    "gui": typeof import("gui");
+    /**
+     * Displays a dialog with up to three options.
+     * 
+     * This module depends on the gui module, which in turn depends on the event_loop module, so they must be imported in this order. It is also recommended to conceptualize these modules first before using this one.
+     */
+    "gui/dialog": gui_dialog;
+    /**
+     * Displays nothing.
+     * 
+     * This module depends on the `gui` module, which in turn depends on the `event_loop` module, so they _must_ be imported in this order. It is also recommended to conceptualize these modules first before using this one.
+     */
+    "gui/empty_screen": gui_empty_screen;
+    /**
+     * Displays an animated hourglass icon. Suppresses all `navigation` events, making it impossible for the user to exit the view by pressing the back key.
+     * 
+     * This module depends on the `gui` module, which in turn depends on the `event_loop` module, so they _must_ be imported in this order. It is also recommended to conceptualize these modules first before using this one.
+     */
+    "gui/loading": gui_loading;
+    /**
+     * Displays a scrollable list of clickable textual entries.
+     * 
+     * This module depends on the `gui` module, which in turn depends on the `event_loop` module, so they _must_ be imported in this order. It is also recommended to conceptualize these modules first before using this one.
+     */
+    "gui/submenu": gui_submenu;
+    /**
+     * Displays a scrollable read-only text field.
+     * 
+     * This module depends on the `gui` module, which in turn depends on the `event_loop` module, so they _must_ be imported in this order. It is also recommended to conceptualize these modules first before using this one.
+     */
+    "gui/text_box": gui_text_box;
+    /**
+     * Displays a keyboard.
+     * 
+     * This module depends on the `gui` module, which in turn depends on the `event_loop` module, so they _must_ be imported in this order. It is also recommended to conceptualize these modules first before using this one.
+     */
+    "gui/text_input": gui_text_input;
     "math": typeof import("math");
     "serial": typeof import("serial");
     "notification": typeof import("notification");
-    "submenu": typeof import("submenu");
-    "textbox": typeof import("textbox");
 }
 
 declare function require<M extends keyof modules>(module: M): modules[M];
@@ -545,13 +636,7 @@ declare function delay(ms: number): void;
 declare function print(...args: (string | number | boolean | undefined)[]): void;
 
 /**
- * converts a number to a string
+ * Convert a number to string with an optional base.
  * @param num the number to convert
  */
-declare function to_string(num: number): string;
-
-/**
- * converts a number to a hex string
- * @param num the number to convert
- */
-declare function to_hex_string(num: number): string;
+declare function to_string(num: number, base: number): string;

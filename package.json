@@ -1,6 +1,6 @@
 {
     "name": "@moojor224/flipper-zero-types",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "license": "ISC",
     "description": "TypeScript definitions for Flipper Zero js scripts",
     "author": "moojor224",

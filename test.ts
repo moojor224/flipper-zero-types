@@ -9,5 +9,3 @@ badusb.setup({
     pid: 0xBBBB
 });
 
-let submenu = require("submenu");
-submenu.show();
